@@ -8,17 +8,17 @@ module.exports = function (app) {
   
     .get(async function (req, res){
       let project = req.params.project;
-      let filterObject = { project_name: project }; // Toujours filtrer par projet
+      let filterObject = { project_name: project }; 
 
-      // Ajouter des filtres de requête à l'objet de filtre
+      
       for (const key in req.query) {
         if (req.query.hasOwnProperty(key)) {
-          // Gérer la conversion de chaîne 'true'/'false' en booléen pour 'open'
+          
           if (key === 'open' && (req.query[key] === 'true' || req.query[key] === 'false')) {
             filterObject[key] = req.query[key] === 'true';
           } else if (key === '_id' && mongoose.Types.ObjectId.isValid(req.query[key])) {
              filterObject[key] = req.query[key];
-          } else if (key !== '_id') { // Ne pas ajouter _id si ce n'est pas un ObjectId valide
+          } else if (key !== '_id') { 
             filterObject[key] = req.query[key];
           }
         }
@@ -73,7 +73,7 @@ module.exports = function (app) {
     })
     
     .put(async function (req, res){
-      // let project = req.params.project; // Non nécessaire ici car _id est unique
+      
       const { _id, ...updateFields } = req.body;
 
       if (!_id) {
@@ -98,9 +98,9 @@ module.exports = function (app) {
       }
 
       fieldsToUpdate.updated_on = new Date();
-      // Si 'open' est envoyé comme chaîne "false", convertissez-le en booléen
+      
       if (fieldsToUpdate.hasOwnProperty('open') && typeof fieldsToUpdate.open === 'string') {
-          fieldsToUpdate.open = fieldsToUpdate.open === 'true'; // ou false selon la logique, ici on suppose que 'false' string signifie fermer
+          fieldsToUpdate.open = fieldsToUpdate.open === 'true'; 
       }
 
 
@@ -117,7 +117,7 @@ module.exports = function (app) {
     })
     
     .delete(async function (req, res){
-      // let project = req.params.project; // Non nécessaire ici
+      
       const { _id } = req.body;
 
       if (!_id) {

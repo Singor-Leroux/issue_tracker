@@ -15,13 +15,13 @@ const testProjectFiltersName = 'test-project-filters-fcc';
 
 suite('Functional Tests', function() {
   
-  suiteSetup(async function() { // S'exécute une fois avant TOUS les tests de cette suite principale
-    this.timeout(5000); // Augmenter le timeout pour les opérations de DB si nécessaire
+  suiteSetup(async function() { 
+    this.timeout(5000); 
     console.log('Global suiteSetup: Clearing test projects data...');
     if (process.env.NODE_ENV === 'test') {
       try {
         await Issue.deleteMany({ project_name: testProjectName });
-        await Issue.deleteMany({ project_name: testProjectFiltersName }); // Nettoie aussi ici au cas où
+        await Issue.deleteMany({ project_name: testProjectFiltersName }); 
         console.log('Global suiteSetup: Test DB cleared for specified projects.');
       } catch (err) {
         console.error("Error clearing test DB in global suiteSetup:", err);
@@ -30,9 +30,9 @@ suite('Functional Tests', function() {
     }
   });
 
-  // Suite pour les tests POST
+  
   suite('POST /api/issues/{project}', function() {
-    // ... vos tests POST ici (ils fonctionnent déjà) ...
+    
     test('Create an issue with every field', function(done) {
       chai.request(serverApp) 
         .post(`/api/issues/${testProjectName}`)
@@ -46,7 +46,7 @@ suite('Functional Tests', function() {
         .end(function(err, res) {
           assert.equal(res.status, 200);
           assert.isObject(res.body);
-          testIssueId1 = res.body._id; // S'assurer que testIssueId1 est défini
+          testIssueId1 = res.body._id; 
           done();
         });
     });
@@ -62,7 +62,7 @@ suite('Functional Tests', function() {
         .end(function(err, res) {
           assert.equal(res.status, 200);
           assert.isObject(res.body);
-          testIssueId2 = res.body._id; // S'assurer que testIssueId2 est défini
+          testIssueId2 = res.body._id; 
           done();
         });
     });
@@ -79,11 +79,11 @@ suite('Functional Tests', function() {
     });
   });
 
-  // Suite pour les tests GET
+  
   suite('GET /api/issues/{project}', function() {
     
-    // Ce hook 'setup' (équivalent de beforeEach en BDD) s'exécutera
-    // avant CHAQUE test dans CETTE suite 'GET /api/issues/{project}'
+    
+    
     setup(async function() { 
       this.timeout(5000);
       if (process.env.NODE_ENV === 'test') {
@@ -118,7 +118,7 @@ suite('Functional Tests', function() {
           assert.equal(res.status, 200);
           assert.isArray(res.body);
           assert.equal(res.body.length, 1, "Expected 1 closed issue");
-          if (res.body.length > 0) { // S'assurer qu'il y a un résultat avant d'y accéder
+          if (res.body.length > 0) { 
             assert.equal(res.body[0].issue_title, 'Filter Test 2');
             assert.isFalse(res.body[0].open);
           }
@@ -134,7 +134,7 @@ suite('Functional Tests', function() {
           assert.equal(res.status, 200);
           assert.isArray(res.body);
           assert.equal(res.body.length, 2, "Expected 2 open issues assigned to Chai");
-          if (res.body.length > 0) { // S'assurer qu'il y a des résultats
+          if (res.body.length > 0) { 
             res.body.forEach(issue => {
               assert.isTrue(issue.open);
               assert.equal(issue.assigned_to, 'Chai');
@@ -145,12 +145,12 @@ suite('Functional Tests', function() {
     });
   });
 
-  // Suite pour les tests PUT
+  
   suite('PUT /api/issues/{project}', function() {
-    // ... vos tests PUT (ils dépendent de testIssueId1 et testIssueId2 des tests POST)
-    // Assurez-vous que testIssueId1 est bien défini par le test POST avant cette suite
+    
+    
     test('Update one field on an issue', function(done) {
-        // Vérifier que testIssueId1 est défini
+        
         if (!testIssueId1) {
             return done(new Error("testIssueId1 is not defined. POST test might have failed or not run."));
         }
@@ -164,7 +164,7 @@ suite('Functional Tests', function() {
                 done();
             });
     });
-    // ... autres tests PUT
+    
     test('Update multiple fields on an issue', function(done) {
         if (!testIssueId1) return done(new Error("testIssueId1 is not defined."));
         chai.request(serverApp)
@@ -181,7 +181,7 @@ suite('Functional Tests', function() {
                 }).catch(done);
             });
     });
-    test('Update an issue with missing _id', function(done) { /* ... */ done(); }); // Remplacer par le vrai test
+    test('Update an issue with missing _id', function(done) { /* ... */ done(); }); 
     test('Update an issue with no fields to update', function(done) { /* ... */ done(); });
     test('Update an issue with an invalid _id (format)', function(done) { /* ... */ done(); });
     test('Update an issue with a non-existent valid _id', function(done) { /* ... */ done(); });
@@ -189,9 +189,9 @@ suite('Functional Tests', function() {
 
   });
 
-  // Suite pour les tests DELETE
+  
   suite('DELETE /api/issues/{project}', function() {
-    // ... vos tests DELETE (ils dépendent de testIssueId2)
+    
      test('Delete an issue', function(done) {
         if (!testIssueId2) {
             return done(new Error("testIssueId2 is not defined. POST test might have failed or not run."));
@@ -209,7 +209,7 @@ suite('Functional Tests', function() {
                 }).catch(done);
             });
     });
-    // ... autres tests DELETE
+    
     test('Delete an issue with an invalid _id (format)', function(done) { /* ... */ done(); });
     test('Delete an issue with missing _id', function(done) { /* ... */ done(); });
     test('Delete a non-existent issue with a valid _id format', function(done) { /* ... */ done(); });
@@ -232,6 +232,6 @@ suiteTeardown(function(done) {
         console.log('Simplified Teardown - Server not listening or already closed.');
         done();
     }
-    // NE PAS nettoyer la DB ni fermer Mongoose ici pour ce test
+    
 });
 });
