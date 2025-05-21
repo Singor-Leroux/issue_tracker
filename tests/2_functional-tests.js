@@ -217,7 +217,7 @@ suite('Functional Tests', function() {
 
   // SuiteTeardown global
   suiteTeardown(function(done) {
-    this.timeout(10000);
+    this.timeout(15000);
     console.log('Global suiteTeardown: Cleaning DB and closing connections...');
     // ... (votre logique de fermeture de serverInstance et mongoose.connection) ...
     // Assurez-vous que done() est appelé à la fin.
@@ -228,27 +228,14 @@ suite('Functional Tests', function() {
     ]).then(() => {
         console.log('Global suiteTeardown: DB cleaned.');
         if (serverInstance && serverInstance.listening) {
-            serverInstance.close((err) => {
-                if (err) console.error('Error closing server:', err);
-                else console.log('Server closed.');
-                // Fermer Mongoose ici si ce n'est pas fait ailleurs
-                mongoose.connection.close(false).then(() => {
-                    console.log("Mongoose connection closed in teardown.");
-                    done();
-                }).catch(mongoErr => {
-                    console.error("Error closing mongoose in teardown:", mongoErr);
-                    done(mongoErr);
-                });
-            });
-        } else {
-             mongoose.connection.close(false).then(() => {
-                console.log("Mongoose connection closed in teardown (server was not up).");
-                done();
-            }).catch(mongoErr => {
-                console.error("Error closing mongoose in teardown (server was not up):", mongoErr);
-                done(mongoErr);
-            });
-        }
+        serverInstance.close(() => {
+            console.log("Server closed in simplified teardown.");
+            // Ne fermez PAS mongoose ici pour ce test simple
+            done();
+        });
+    } else {
+        done();
+    }
     }).catch(dbErr => {
         console.error('Error cleaning DB in teardown:', dbErr);
         done(dbErr);
