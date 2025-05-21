@@ -9,8 +9,9 @@ const mongoose    = require('mongoose');
 const path        = require('path');
 
 const apiRoutes         = require('./routes/api.js');
-// const fccTestingRoutes  = require('./routes/fcctesting.js'); // Pour les tests FCC, si vous clonez leur dépôt
-// const runner            = require('./test-runner'); // Pour les tests FCC
+// Les lignes pour fccTestingRoutes et runner devraient déjà être commentées/supprimées
+// const fccTestingRoutes  = require('./routes/fcctesting.js');
+// const runner            = require('./test-runner');
 
 const app = express();
 
@@ -18,7 +19,7 @@ const app = express();
 app.use(helmet.contentSecurityPolicy({
   directives: {
     defaultSrc: ["'self'"],
-    scriptSrc: ["'self'", "'unsafe-inline'"], // 'unsafe-inline' est nécessaire pour les scripts inline dans les vues simples
+    scriptSrc: ["'self'", "'unsafe-inline'"],
     styleSrc: ["'self'", "'unsafe-inline'"],
   }
 }));
@@ -29,7 +30,7 @@ app.use(helmet.hidePoweredBy());
 
 app.use('/public', express.static(process.cwd() + '/public'));
 
-app.use(cors({origin: '*'})); // Pour les tests FCC
+app.use(cors({origin: '*'}));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -56,9 +57,6 @@ app.route('/:project/')
 // Routage de l'API
 apiRoutes(app);
 
-// Routage pour les tests FCC (si vous utilisez leur boilerplate)
-// fccTestingRoutes(app); // Décommentez si vous avez fcctesting.js
-
 // Gestionnaire 404 - doit être après toutes les autres routes
 app.use(function(req, res, next) {
   res.status(404)
@@ -67,21 +65,16 @@ app.use(function(req, res, next) {
 });
 
 const port = process.env.PORT || 3000;
-// Démarrer le serveur et les tests (si NODE_ENV=test)
-app.listen(port, function () {
+
+// Démarrer le serveur
+// Nous allons stocker l'instance du serveur (listener) pour pouvoir la fermer plus tard dans les tests
+const listener = app.listen(port, function () {
   console.log("Listening on port " + port);
-  if(process.env.NODE_ENV==='test') {
-    console.log('Running Tests...');
-    setTimeout(function () {
-      try {
-        runner.run(); // Décommentez si vous avez test-runner.js du boilerplate FCC
-      } catch(e) {
-        let error = e;
-          console.log('Tests are not valid:');
-          console.log(error);
-      }
-    }, 1500);
-  }
+  // La logique "Running Tests..." est plus pertinente dans le script de test lui-même ou via le log de Mocha
+  // if(process.env.NODE_ENV==='test') {
+  //   console.log('Running Tests...');
+  // }
 });
 
-module.exports = app; // pour les tests
+module.exports = app; // pour les tests chai-http
+module.exports.listener = listener; // Exportez le listener pour pouvoir le fermer
