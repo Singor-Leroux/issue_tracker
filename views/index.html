@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Issue Tracker - Accueil</title>
+    <meta name="description" content="A cool thing made with Express">
+    <link id="favicon" rel="icon" href="https://cdn.freecodecamp.org/universal/favicons/favicon-32x32.png" type="image/x-icon">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/public/style.css">
+  </head>
+  <body>
+    <header>
+      <h1>Issue Tracker</h1>
+    </header>
+    <div id='userstories' style='margin-left: 5%; margin-top: 5%'>
+      <h3>Projet Issue Tracker</h3>
+      <p>
+        Cette application est fonctionnellement similaire à <a href="https://issue-tracker.freecodecamp.rocks/" target="_blank">https://issue-tracker.freecodecamp.rocks/</a>
+      </p>
+      <br>
+      <h4>Pour accéder à un projet spécifique :</h4>
+      <form id="projectForm">
+        <input type="text" id="project_name" name="project_name" placeholder="Nom du projet" required>
+        <button type="submit">Aller au projet</button>
+      </form>
+      <p>Par exemple, pour accéder au projet "apitest", entrez "apitest" et cliquez sur "Aller au projet".</p>
+      <p>Cela vous mènera à <code>/[nom_du_projet]/</code></p>
+    </div>
+    <hr style='margin: 50px'>
+    <script>
+      document.getElementById('projectForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const projectName = document.getElementById('project_name').value;
+        if (projectName) {
+          window.location.href = '/' + encodeURIComponent(projectName) + '/';
+        }
+      });
+    </script>
+  </body>
+</html>

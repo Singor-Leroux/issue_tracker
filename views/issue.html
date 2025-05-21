@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Issue Tracker</title>
+    <meta name="description" content="Issue Tracker Project">
+    <link id="favicon" rel="icon" href="https://cdn.freecodecamp.org/universal/favicons/favicon-32x32.png" type="image/x-icon">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/public/style.css">
+  </head>
+  <body>
+    <header>
+      <h1 id="projectTitle"></h1>
+    </header>
+    
+    <div id="main-content">
+      <div id="userstories">
+        <h3>Soumettre un nouveau ticket pour <span class="project-name-display"></span>:</h3>
+        <form id="newIssue">
+          <input type="text" name="issue_title" placeholder="*Titre du ticket" required><br>
+          <textarea name="issue_text" placeholder="*Texte du ticket" required></textarea><br>
+          <input type="text" name="created_by" placeholder="*Créé par" required><br>
+          <input type="text" name="assigned_to" placeholder="(Optionnel) Assigné à"><br>
+          <input type="text" name="status_text" placeholder="(Optionnel) Texte de statut"><br>
+          <button type="submit">Soumettre le ticket</button>
+        </form>
+        <hr>
+        <h3>Mettre à jour un ticket existant:</h3>
+        <form id="updateIssue">
+          <input type="text" name="_id" placeholder="*_id du ticket à mettre à jour" required><br>
+          <input type="text" name="issue_title" placeholder="(Optionnel) Titre du ticket"><br>
+          <textarea name="issue_text" placeholder="(Optionnel) Texte du ticket"></textarea><br>
+          <input type="text" name="created_by" placeholder="(Optionnel) Créé par"><br>
+          <input type="text" name="assigned_to" placeholder="(Optionnel) Assigné à"><br>
+          <input type="text" name="status_text" placeholder="(Optionnel) Texte de statut"><br>
+          <label><input type="checkbox" name="open" value="false"> Fermer le ticket ?</label><br>
+          <button type="submit">Mettre à jour le ticket</button>
+        </form>
+        <hr>
+        <h3>Supprimer un ticket:</h3>
+        <form id="deleteIssue">
+          <input type="text" name="_id" placeholder="*_id du ticket à supprimer" required><br>
+          <button type="submit">Supprimer le ticket</button>
+        </form>
+      </div>
+      
+      <div id="issueDisplay"></div>
+    </div>
+    
+    <hr style='margin: 50px; margin-top: 200px'>
+    
+    <script src="/public/client.js"></script>
+  </body>
+</html>
