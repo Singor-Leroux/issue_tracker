@@ -216,69 +216,42 @@ suite('Functional Tests', function() {
   });
 
   // SuiteTeardown global
-// Dans tests/2_functional-tests.js
-suiteTeardown(function(done) {
-    this.timeout(10000); // Augmenter si nécessaire
-    console.log('Tearing down: Closing server and Mongoose connection...');
-    let serverClosed = false;
-    let mongooseClosed = false;
-    let errorOccurred = null;
-
-    function checkDone() {
-        if (serverClosed && mongooseClosed) {
-            if (errorOccurred) console.error("Error(s) during teardown:", errorOccurred);
-            else console.log("Teardown complete.");
-            done(errorOccurred); // Appeler done avec l'erreur s'il y en a une, ou null sinon
-        }
-    }
-
-    // D'abord, nettoyer la DB (c'est déjà fait dans votre code, mais pour l'exemple)
+  suiteTeardown(function(done) {
+    this.timeout(10000);
+    console.log('Global suiteTeardown: Cleaning DB and closing connections...');
+    // ... (votre logique de fermeture de serverInstance et mongoose.connection) ...
+    // Assurez-vous que done() est appelé à la fin.
+    // Exemple simplifié (reprenez votre version plus complète)
     Promise.all([
         Issue.deleteMany({ project_name: testProjectName }),
         Issue.deleteMany({ project_name: testProjectFiltersName })
     ]).then(() => {
-        console.log('Test database cleaned up.');
-
-        // Ensuite, fermer le serveur
+        console.log('Global suiteTeardown: DB cleaned.');
         if (serverInstance && serverInstance.listening) {
             serverInstance.close((err) => {
-                if (err) { console.error('Error closing server:', err); errorOccurred = err; }
-                else { console.log('Server closed.'); }
-                serverClosed = true;
-                checkDone();
+                if (err) console.error('Error closing server:', err);
+                else console.log('Server closed.');
+                // Fermer Mongoose ici si ce n'est pas fait ailleurs
+                mongoose.connection.close(false).then(() => {
+                    console.log("Mongoose connection closed in teardown.");
+                    done();
+                }).catch(mongoErr => {
+                    console.error("Error closing mongoose in teardown:", mongoErr);
+                    done(mongoErr);
+                });
             });
         } else {
-            console.log('Server not listening or already closed.');
-            serverClosed = true;
-            checkDone();
-        }
-
-        // Enfin, fermer la connexion Mongoose
-        if (mongoose.connection.readyState === 1 || mongoose.connection.readyState === 2) { // 1=connected, 2=connecting
-            mongoose.connection.close(false) // false pour ne pas forcer si des opérations sont en cours
-                .then(() => {
-                    console.log('Mongoose connection closed.');
-                })
-                .catch(err => {
-                    console.error('Error closing Mongoose connection:', err);
-                    if (!errorOccurred) errorOccurred = err; // Stocker la première erreur
-                })
-                .finally(() => {
-                    mongooseClosed = true;
-                    checkDone();
-                });
-        } else {
-            console.log('Mongoose connection already closed or not open.');
-            mongooseClosed = true;
-            checkDone();
+             mongoose.connection.close(false).then(() => {
+                console.log("Mongoose connection closed in teardown (server was not up).");
+                done();
+            }).catch(mongoErr => {
+                console.error("Error closing mongoose in teardown (server was not up):", mongoErr);
+                done(mongoErr);
+            });
         }
     }).catch(dbErr => {
-        console.error('Error cleaning up test database:', dbErr);
-        errorOccurred = dbErr;
-        // Marquer comme "tenté" pour que checkDone puisse se terminer
-        serverClosed = true; 
-        mongooseClosed = true; 
-        checkDone();
+        console.error('Error cleaning DB in teardown:', dbErr);
+        done(dbErr);
     });
-});
+  });
 });

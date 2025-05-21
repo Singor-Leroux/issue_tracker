@@ -58,10 +58,10 @@ app.route('/:project/')
 apiRoutes(app);
 
 // Gestionnaire 404 - doit être après toutes les autres routes
-// server.js
 app.use(function(req, res, next) {
-  console.error(`[SERVER 404 HANDLER] Path: ${req.originalUrl}, Method: ${req.method}`); // Log détaillé
-  res.status(404).type('text').send('Not Found');
+  res.status(404)
+    .type('text')
+    .send('Not Found');
 });
 
 const port = process.env.PORT || 3000;
