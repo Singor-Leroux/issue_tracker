@@ -215,30 +215,23 @@ suite('Functional Tests', function() {
     test('Delete a non-existent issue with a valid _id format', function(done) { /* ... */ done(); });
   });
 
-  // SuiteTeardown global
-  suiteTeardown(function(done) {
-    this.timeout(15000);
-    console.log('Global suiteTeardown: Cleaning DB and closing connections...');
-    // ... (votre logique de fermeture de serverInstance et mongoose.connection) ...
-    // Assurez-vous que done() est appelé à la fin.
-    // Exemple simplifié (reprenez votre version plus complète)
-    Promise.all([
-        Issue.deleteMany({ project_name: testProjectName }),
-        Issue.deleteMany({ project_name: testProjectFiltersName })
-    ]).then(() => {
-        console.log('Global suiteTeardown: DB cleaned.');
-        if (serverInstance && serverInstance.listening) {
-        serverInstance.close(() => {
-            console.log("Server closed in simplified teardown.");
-            // Ne fermez PAS mongoose ici pour ce test simple
+
+suiteTeardown(function(done) {
+    this.timeout(5000);
+    console.log('Simplified Teardown: Attempting to close server only...');
+    if (serverInstance && serverInstance.listening) {
+        serverInstance.close((err) => {
+            if (err) {
+                console.error('Simplified Teardown - Error closing server:', err);
+                return done(err);
+            }
+            console.log('Simplified Teardown - Server closed.');
             done();
         });
     } else {
+        console.log('Simplified Teardown - Server not listening or already closed.');
         done();
     }
-    }).catch(dbErr => {
-        console.error('Error cleaning DB in teardown:', dbErr);
-        done(dbErr);
-    });
-  });
+    // NE PAS nettoyer la DB ni fermer Mongoose ici pour ce test
+});
 });
