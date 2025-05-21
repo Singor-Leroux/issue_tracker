@@ -12,7 +12,7 @@ let testIssueId2;
 // On peut définir un projet spécifique pour les tests pour éviter les conflits
 const testProjectName = 'test-project-fcc';
 const testProjectFiltersName = 'test-project-filters-fcc';
-
+const mongoose = require('mongoose');
 
 suite('Functional Tests', function() {
   
