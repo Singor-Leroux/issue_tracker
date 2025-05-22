@@ -23,7 +23,7 @@ module.exports = function(app) {
       });
     });
 
-  // Endpoint existant pour récupérer le code source du serveur
+  // Endpoint pour récupérer le code source du serveur
   app.route('/_api/server.js')
     .get(function(req, res, next) {
       console.log('GET /_api/server.js');
@@ -32,18 +32,10 @@ module.exports = function(app) {
         res.type('txt').send(data.toString());
       });
     });
-};// routes/fcctesting.js
-'use strict';
 
-const fs = require('fs');
-
-module.exports = function(app) {
-  app.route('/_api/server.js')
-    .get(function(req, res, next) {
-      console.log('requested');
-      fs.readFile(process.cwd() + '/server.js', function(err, data) {
-        if(err) return next(err);
-        res.send(data.toString());
-      });
+  // Endpoint pour vérifier l'état du serveur
+  app.route('/_api/status')
+    .get(function(req, res) {
+      res.json({ status: 'ok' });
     });
 };
