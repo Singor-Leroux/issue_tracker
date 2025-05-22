@@ -1,3 +1,4 @@
+// routes/api.js
 'use strict';
 const Issue = require('../models/issue');
 const mongoose = require('mongoose');
@@ -8,28 +9,18 @@ module.exports = function (app) {
   
     .get(async function (req, res){
       let project = req.params.project;
-      let filterObject = { project_name: project }; 
+      let query = req.query;
+      query.project = project; // Filter by project name
 
-      
-      for (const key in req.query) {
-        if (req.query.hasOwnProperty(key)) {
-          
-          if (key === 'open' && (req.query[key] === 'true' || req.query[key] === 'false')) {
-            filterObject[key] = req.query[key] === 'true';
-          } else if (key === '_id' && mongoose.Types.ObjectId.isValid(req.query[key])) {
-             filterObject[key] = req.query[key];
-          } else if (key !== '_id') { 
-            filterObject[key] = req.query[key];
-          }
-        }
-      }
-      
+      // Convert 'open' string from query to boolean if present
+      if (query.open === 'true') query.open = true;
+      if (query.open === 'false') query.open = false;
+
       try {
-        const issues = await Issue.find(filterObject);
+        const issues = await Issue.find(query).exec();
         res.json(issues);
       } catch (err) {
-        console.error(err);
-        res.status(500).send("Error retrieving issues");
+        res.status(500).json({ error: 'could not retrieve issues' });
       }
     })
     
@@ -42,7 +33,7 @@ module.exports = function (app) {
       }
 
       const newIssue = new Issue({
-        project_name: project,
+        project: project,
         issue_title,
         issue_text,
         created_by,
@@ -55,6 +46,7 @@ module.exports = function (app) {
 
       try {
         const savedIssue = await newIssue.save();
+        // Return all fields, even if optional ones were not submitted (they'll have defaults)
         res.json({
           _id: savedIssue._id,
           issue_title: savedIssue.issue_title,
@@ -67,13 +59,12 @@ module.exports = function (app) {
           status_text: savedIssue.status_text
         });
       } catch (err) {
-        console.error(err);
-        res.status(500).send("Error saving issue");
+        res.status(500).json({ error: 'could not save issue' });
       }
     })
     
     .put(async function (req, res){
-      
+      // No project param needed here as _id is unique
       const { _id, ...updateFields } = req.body;
 
       if (!_id) {
@@ -81,43 +72,40 @@ module.exports = function (app) {
       }
       
       if (!mongoose.Types.ObjectId.isValid(_id)) {
-          return res.json({ error: 'could not update', '_id': _id });
+        return res.json({ error: 'could not update', '_id': _id });
       }
 
       const fieldsToUpdate = {};
-      let hasUpdateFields = false;
-      for (const key in updateFields) {
-        if (updateFields.hasOwnProperty(key) && updateFields[key] !== undefined && updateFields[key] !== '') {
+      Object.keys(updateFields).forEach(key => {
+        if (updateFields[key] !== '' && updateFields[key] !== undefined && updateFields[key] !== null) {
           fieldsToUpdate[key] = updateFields[key];
-          hasUpdateFields = true;
         }
-      }
-
-      if (!hasUpdateFields) {
+      });
+      
+      if (Object.keys(fieldsToUpdate).length === 0) {
         return res.json({ error: 'no update field(s) sent', '_id': _id });
       }
 
       fieldsToUpdate.updated_on = new Date();
-      
-      if (fieldsToUpdate.hasOwnProperty('open') && typeof fieldsToUpdate.open === 'string') {
-          fieldsToUpdate.open = fieldsToUpdate.open === 'true'; 
+      // Convert 'open' string to boolean if sent
+      if (typeof fieldsToUpdate.open === 'string') {
+         fieldsToUpdate.open = (fieldsToUpdate.open === 'true');
       }
 
 
       try {
-        const updatedIssue = await Issue.findByIdAndUpdate(_id, { $set: fieldsToUpdate }, { new: true });
+        const updatedIssue = await Issue.findByIdAndUpdate(_id, fieldsToUpdate, { new: true });
         if (!updatedIssue) {
           return res.json({ error: 'could not update', '_id': _id });
         }
         res.json({ result: 'successfully updated', '_id': _id });
       } catch (err) {
-        console.error(err);
         res.json({ error: 'could not update', '_id': _id });
       }
     })
     
     .delete(async function (req, res){
-      
+      // No project param needed here as _id is unique
       const { _id } = req.body;
 
       if (!_id) {
@@ -135,7 +123,6 @@ module.exports = function (app) {
         }
         res.json({ result: 'successfully deleted', '_id': _id });
       } catch (err) {
-        console.error(err);
         res.json({ error: 'could not delete', '_id': _id });
       }
     });
