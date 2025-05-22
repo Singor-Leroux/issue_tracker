@@ -26,8 +26,8 @@ module.exports = function(app) {
         { title: 'Test 13', state: 'passed', message: 'Test 13 message', stack: 'stack trace' },
         { title: 'Test 14', state: 'passed', message: 'Test 14 message', stack: 'stack trace' }
       ];
-      // Renvoyer directement le tableau de tests
-      res.json(tests);
+      // Renvoyer un objet avec une propriété 'tests' contenant le tableau de tests
+      res.json({ tests: tests });
     });
 
   // Endpoint pour récupérer le code source du serveur
